@@ -7,7 +7,11 @@ Benchmark: Motilal Oswal Nifty 500 Index Fund - Direct (Nifty 500 TRI proxy).
 import sqlite3, json
 import numpy as np, pandas as pd
 
-DB = "/home/claude/data/funds.db"
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent
+DB = str(ROOT / "funds.db")  # downloaded database; see README
+OUT = str(ROOT / "data") + "/"
+(ROOT / "data").mkdir(exist_ok=True)
 START, END = "2019-11-01", "2026-10-30"
 FUNDS = {
     122639: "Parag Parikh", 118955: "HDFC", 120166: "Kotak", 120843: "quant",
@@ -115,11 +119,11 @@ if __name__ == "__main__":
     p = load()
     print("Common window:", p.index[0].date(), "->", p.index[-1].date(), "| obs:", len(p))
     M, r, m = metrics(p, bench)
-    M.to_csv("metrics.csv")
-    S = stress_episodes(p, bench); S.to_csv("stress.csv")
-    RV = rolling(p, bench); RV.to_csv("rolling_vol.csv")
-    O = oos_test(p, bench); O.to_csv("oos.csv")
-    drawdown(p).to_csv("drawdowns.csv"); p.to_csv("nav.csv")
+    M.to_csv(OUT + "metrics.csv")
+    S = stress_episodes(p, bench); S.to_csv(OUT + "stress.csv")
+    RV = rolling(p, bench); RV.to_csv(OUT + "rolling_vol.csv")
+    O = oos_test(p, bench); O.to_csv(OUT + "oos.csv")
+    drawdown(p).to_csv(OUT + "drawdowns.csv"); p.to_csv(OUT + "nav.csv")
     pd.set_option("display.width", 250); pd.set_option("display.max_columns", 30)
     show = M[["cagr", "vol", "downside_dev", "beta", "mdd", "peak", "trough", "recovery", "underwater_days",
               "ulcer", "down_capture", "up_capture", "worst_month", "cvar5_daily", "sortino_like"]]
@@ -144,7 +148,7 @@ def extra(p, bench):
     return pd.DataFrame(rows).T
 
 if __name__ == "__main__":
-    E = extra(p, bench); E.to_csv("extra.csv")
+    E = extra(p, bench); E.to_csv(OUT + "extra.csv")
     print("\n", E.to_string())
     funds = list(FUNDS.values())
     A = M.loc[funds, ["vol", "mdd", "ulcer", "down_capture", "cvar5_daily", "worst_month"]].astype(float).join(E.loc[funds, ["mdd_post2021", "longest_underwater_days"]].astype(float))
@@ -154,7 +158,7 @@ if __name__ == "__main__":
         "Ulcer": A.ulcer.rank(), "Down capture": A.down_capture.rank(),
         "Longest underwater": A.longest_underwater_days.rank(),
     }).astype(int)
-    R.to_csv("ranks.csv"); print("\nRanks (1=safest):\n", R.sort_values("SD").to_string())
+    R.to_csv(OUT + "ranks.csv"); print("\nRanks (1=safest):\n", R.sort_values("SD").to_string())
     print("\nSpearman between metric rankings:\n", R.corr("spearman").round(2).to_string())
     rvr = RV[funds].rank(axis=1)
     print("\nRolling-1y vol rank stats (1=lowest vol):\n", rvr.describe().loc[["mean", "min", "max"]].round(1).to_string())

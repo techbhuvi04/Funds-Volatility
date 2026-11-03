@@ -73,11 +73,11 @@ The analysis tests agreement in four ways:
 
 ## Findings
 
-† marks a robustness check calculated separately from the saved outputs in this repo (`nav.csv`, `metrics.csv` and `concentration.csv`). The scripts don't write these figures to their output files.
+† marks a robustness check calculated separately from the saved outputs in this repo (`data/nav.csv`, `data/metrics.csv` and `data/concentration.csv`). The scripts don't write these figures to their output files.
 
 ### 1. SD and the other risk metrics rank funds differently
 
-![Risk rank by metric, sorted by SD](fig4_rank_heatmap.png)
+![Risk rank by metric, sorted by SD](figures/fig4_rank_heatmap.png)
 
 | Rank correlation with SD | Max DD | Ulcer | Down capture | Post-2021 DD | Longest underwater |
 |---|---:|---:|---:|---:|---:|
@@ -92,13 +92,13 @@ Replacing SD with a downside-only measure would not change much. Across these fu
 
 ### 2. Low volatility can hide a slow, persistent loss
 
-![Drawdown curves for all funds](fig1_drawdowns.png)
+![Drawdown curves for all funds](figures/fig1_drawdowns.png)
 
 UTI's SD was below the benchmark's, yet its drawdown curve stays well below the others through 2022–23. It spent 31.6% of trading days more than 10% below a previous peak, compared with 12.5% for HDFC and 7.3% for Parag Parikh.† Its CAGR, 12.1%, was also the lowest of the group.
 
 SD can miss this because it treats returns as if their order doesn't matter. A run of small losses barely registers in SD, but it compounds into a deep drawdown.
 
-![SD compared with post-2021 drawdown](fig2_sd_vs_dd.png)
+![SD compared with post-2021 drawdown](figures/fig2_sd_vs_dd.png)
 
 This chart compares full-period SD with post-2021 drawdown, so the periods differ. Using post-2021 SD for both tightens the relationship only slightly, to ρ = +0.33 on a safety-rank basis:†
 
@@ -127,7 +127,7 @@ Performance in one fall didn't carry over to the next:
 
 ### 4. Downside capture is useful, but it was not stable
 
-![Upside capture against downside capture](fig3_capture.png)
+![Upside capture against downside capture](figures/fig3_capture.png)
 
 Every fund captured less of the market's falls than the benchmark, and most also lagged or roughly matched it on the way up. Only Parag Parikh sits far from the group.
 
@@ -160,7 +160,7 @@ The full-period number averages two very different periods for quant and HDFC. P
 
 ### 6. Past risk was a weak guide to future risk
 
-![First-half SD against second-half max drawdown](fig5_oos.png)
+![First-half SD against second-half max drawdown](figures/fig5_oos.png)
 
 | Spearman ρ, first half (rows) vs second half (columns) | SD | Max DD | Down capture |
 |---|---:|---:|---:|
@@ -232,32 +232,30 @@ pip install "pandas>=2.2" numpy matplotlib
    zstd -d funds.db.zst
    ```
 
-2. **Update the hard-coded paths**, which point to another machine:
-   - `DB` in `analysis.py` (line 10): the path to `funds.db`.
-   - `D` in `charts.py` (line 6): this project folder, with a trailing `/`.
-
-3. **Run the scripts in this order from the project folder:**
+2. **Run the scripts in this order:**
 
    ```bash
-   python3 analysis.py   # NAV-based metrics, including drawdowns.csv, which charts.py needs
-   python3 holdings.py   # concentration.csv
-   python3 charts.py     # fig1 to fig5
+   python3 analysis.py   # NAV-based metrics, including data/drawdowns.csv, which charts.py needs
+   python3 holdings.py   # data/concentration.csv
+   python3 charts.py     # figures/fig1 to fig5
    ```
+
+   Keep `funds.db` in the project folder next to the scripts. Outputs go to `data/` and `figures/`, which the scripts create if missing.
 
 The release is updated over time, but results stay limited to the fixed window set in `analysis.py`. Later AMFI corrections could still change them slightly.
 
 ### Project files
 
-| File | Contents |
+| Path | Contents |
 |---|---|
 | `analysis.py` | Loads NAVs, then calculates metrics, stress episodes, ranks and the out-of-sample test |
 | `holdings.py` | Hard-coded holdings and concentration metrics |
 | `charts.py` | Generates the five figures |
-| `nav.csv` | Aligned daily NAVs |
-| `metrics.csv` | Full-period risk and return metrics |
-| `extra.csv` | Post-2021 drawdown, longest underwater spell, current drawdown |
-| `stress.csv` | Fund returns in each benchmark fall of more than 10% |
-| `ranks.csv` | Safety rank of each fund by metric |
-| `oos.csv` | First-half and second-half risk metrics |
-| `concentration.csv` | Concentration metrics by fund |
-| `fig1`–`fig5` `.png` | Charts used in this README |
+| `data/nav.csv` | Aligned daily NAVs |
+| `data/metrics.csv` | Full-period risk and return metrics |
+| `data/extra.csv` | Post-2021 drawdown, longest underwater spell, current drawdown |
+| `data/stress.csv` | Fund returns in each benchmark fall of more than 10% |
+| `data/ranks.csv` | Safety rank of each fund by metric |
+| `data/oos.csv` | First-half and second-half risk metrics |
+| `data/concentration.csv` | Concentration metrics by fund |
+| `figures/fig1`–`fig5` `.png` | Charts used in this README |

@@ -6,6 +6,9 @@ Cash, repo, T-bills, G-secs and net payables are excluded. Sector is collapsed t
 insurers, AMCs, exchanges, brokers) vs other, because the sources use different taxonomies.
 """
 import numpy as np, pandas as pd
+from pathlib import Path
+OUT = str(Path(__file__).resolve().parent / "data") + "/"
+Path(OUT).mkdir(exist_ok=True)
 
 F = "Fin"
 H = {
@@ -79,6 +82,6 @@ def conc_table():
     return t
 
 if __name__ == "__main__":
-    t = conc_table(); t.to_csv("concentration.csv")
+    t = conc_table(); t.to_csv(OUT + "concentration.csv")
     print(t.to_string(float_format=lambda x: f"{x:.3f}"))
     print("Adani group in quant:", 7.87 + 7.72 + 3.46 + 3.40)
