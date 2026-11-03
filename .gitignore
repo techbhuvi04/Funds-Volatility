@@ -1,0 +1,5 @@
+funds.db
+funds.db.zst
+__pycache__/
+.DS_Store
+.venv/
